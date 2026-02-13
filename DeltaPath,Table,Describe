@@ -1,0 +1,19 @@
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+
+delta_path = "/tmp/delta/adls_to_delta"       # Replace with your Delta path
+table_name = "adls_delta_table"              # Replace with your table name
+
+df_path = spark.read.format("delta").load(delta_path)
+print("Data read by PATH:")
+df_path.show()
+
+df_table = spark.read.format("delta").table(table_name)
+print("Data read by TABLE NAME:")
+df_table.show()
+
+print("DESCRIBE DETAIL by PATH:")
+spark.sql(f"DESCRIBE DETAIL delta.`{delta_path}`").show(truncate=False)
+
+print("DESCRIBE DETAIL by TABLE NAME:")
+spark.sql(f"DESCRIBE DETAIL {table_name}").show(truncate=False)
