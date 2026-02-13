@@ -1,0 +1,17 @@
+Create Delta table from DataFrame with partitioning (year, month)
+
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+
+df = spark.read.format("csv").option('header','true').load("/Volumes/delta_practice_catalog/actual_files/tests/users.csv")
+
+df = df.withColumn("date",to_date(col("purchase_timestamp"),"yyyy-MM-dd HH:mm:ss"))
+
+df = df.withColumn("year", year("date")).withColumn("month", month("date"))
+
+delta_path = "/Volumes/delta_practice_catalog/test_schema/users/all_sales"  # Change to your desired path
+
+df.write.format("delta") \
+    .mode("overwrite") \
+    .partitionBy("year", "month") \
+    .save(delta_path)
