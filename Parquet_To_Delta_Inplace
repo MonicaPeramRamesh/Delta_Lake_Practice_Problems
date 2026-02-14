@@ -1,0 +1,4 @@
+Convert existing Parquet data lake to Delta in-place
+
+%sql
+CONVERT TO DELTA parquet.`/Volumes/delta_practice_catalog/test_schema/users/sales_details/`
