@@ -8,3 +8,10 @@ df = spark.read.format("csv").option("header","true").load("/Volumes/delta_pract
 df = df.withColumn("date", to_date(col("purchase_timestamp"), "yyyy-MM-dd HH:mm:ss")).withColumn("year", year("date")).withColumn("month", month("date"))
 
 df.write.format("delta").mode("append").partitionBy("year","month").save("/Volumes/delta_practice_catalog/test_schema/users/sales")
+
+# Alternative: Save as managed table
+df.write \
+    .format("delta") \
+    .mode("append") \
+    .partitionBy("year", "month") \
+    .saveAsTable("delta_practice_catalog.test_schema.sales")
