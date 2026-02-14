@@ -1,0 +1,31 @@
+Read Parquet/CSV from ADLS, convert to Delta with schema enforcement
+
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+
+schema = StructType([
+    StructField("sale_id", IntegerType(), True),
+    StructField("user_id", StringType(), True),
+    StructField("user_name", StringType(), True),
+    StructField("product_id", StringType(), True),
+    StructField("product_name", StringType(), True),
+    StructField("quantity", IntegerType(), True),
+    StructField("price_per_unit", IntegerType(), True),
+    StructField("total_cost", IntegerType(), True),
+    StructField("purchase_timestamp", TimestampType(), True),
+    StructField("mobile_number", StringType(), True),
+    StructField("payment_method", StringType(), True),
+    StructField("email", StringType(), True),
+    StructField("liked_products", StringType(), True)
+])
+
+df = spark.read.format("csv") \
+    .schema(schema) \
+    .option("header", "true") \
+    .load("/Volumes/delta_practice_catalog/actual_files/tests/users.csv")
+
+df.printSchema()
+
+df.write.format("delta") \
+    .mode("overwrite") \
+    .save("/Volumes/delta_practice_catalog/test_schema/users/sales")
