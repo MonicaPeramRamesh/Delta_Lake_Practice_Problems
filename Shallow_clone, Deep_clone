@@ -1,0 +1,7 @@
+Clone Delta table - deep vs shallow clone, explain difference
+
+%sql
+CREATE TABLE delta_practice_catalog.test_schema.final_sales_shallow SHALLOW CLONE delta_practice_catalog.test_schema.users
+
+%sql
+CREATE TABLE delta_practice_catalog.test_schema.final_sales_deep DEEP CLONE delta_practice_catalog.test_schema.users
