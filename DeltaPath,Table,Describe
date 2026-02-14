@@ -1,19 +1,20 @@
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 
-delta_path = "/tmp/delta/adls_to_delta"       # Replace with your Delta path
-table_name = "adls_delta_table"              # Replace with your table name
+df.write.format("delta").saveAsTable("delta_practice_catalog.test_schema.sales")
 
-df_path = spark.read.format("delta").load(delta_path)
-print("Data read by PATH:")
-df_path.show()
+#Read delta table thorugh path
+df = spark.read.format("delta").option("header",True).load("/Volumes/delta_practice_catalog/test_schema/users/sales/")
+display(df)
 
-df_table = spark.read.format("delta").table(table_name)
-print("Data read by TABLE NAME:")
-df_table.show()
+#Read delta table thorugh table
+%sql
+select * from delta_practice_catalog.test_schema.sales
 
-print("DESCRIBE DETAIL by PATH:")
-spark.sql(f"DESCRIBE DETAIL delta.`{delta_path}`").show(truncate=False)
+# Describe delta table detail using delta path
+%sql
+describe detail  delta.`/Volumes/delta_practice_catalog/test_schema/users/sales/`
 
-print("DESCRIBE DETAIL by TABLE NAME:")
-spark.sql(f"DESCRIBE DETAIL {table_name}").show(truncate=False)
+# Describe delta table detail using delta table
+%sql
+describe detail delta_practice_catalog.test_schema.sales
