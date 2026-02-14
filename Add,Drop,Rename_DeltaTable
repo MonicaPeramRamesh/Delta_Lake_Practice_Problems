@@ -1,0 +1,53 @@
+Add/drop/rename columns in existing Delta table
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
+
+path = "/Volumes/delta_practice_catalog/test_schema/users/final_sales_column_mapping"
+
+df = spark.read.format("csv") \
+    .option("header", "true") \
+    .option("inferSchema", "true") \
+    .load("/Volumes/delta_practice_catalog/actual_files/tests/users.csv")
+
+#Write Delta Table with Column Mapping Enabled
+df.write.format("delta") \
+    .mode("overwrite") \
+    .option("overwriteSchema", "true") \
+    .option("delta.columnMapping.mode", "name") \
+    .save(path)
+
+print("Initial Schema:")
+spark.read.format("delta").load(path).printSchema()
+
+#ADD COLUMN
+spark.sql(f"""
+    ALTER TABLE delta.`{path}`
+    ADD COLUMN discount INT
+""")
+
+print("After ADD COLUMN:")
+spark.read.format("delta").load(path).printSchema()
+
+#RENAME COLUMN
+spark.sql(f"""
+    ALTER TABLE delta.`{path}`
+    RENAME COLUMN total_cost TO total_amount
+""")
+
+print("After RENAME COLUMN:")
+spark.read.format("delta").load(path).printSchema()
+
+#DROP COLUMN
+spark.sql(f"""
+    ALTER TABLE delta.`{path}`
+    DROP COLUMN discount
+""")
+
+print("After DROP COLUMN:")
+spark.read.format("delta").load(path).printSchema()
+
+#Show Final Data
+final_df = spark.read.format("delta").load(path)
+final_df.show()
+
