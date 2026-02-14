@@ -1,0 +1,20 @@
+Create external vs managed Delta table - when to use which?
+
+#Managed Table
+%sql
+CREATE TABLE sales_managed (
+    sale_id INT,
+    customer_name STRING,
+    amount INT
+)
+USING DELTA;
+
+#External Table
+%sql
+CREATE TABLE sales_external (
+    sale_id INT,
+    customer_name STRING,
+    amount INT
+)
+USING DELTA
+LOCATION '/mnt/datalake/sales';
