@@ -1,0 +1,92 @@
+Append vs Overwrite vs OverwritePartition vs replaceWhere- demonstrate all four
+
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+
+# Path (Unity Catalog Volume Path Example)
+path = "/Volumes/delta_practice_catalog/test_schema/users/sales_demo_all_modes"
+
+# ---------------------------------------
+# 1️⃣ Read Your CSV From Volume
+# ---------------------------------------
+schema = StructType([
+    StructField("sale_id", IntegerType(), True),
+    StructField("user_id", StringType(), True),
+    StructField("user_name", StringType(), True),
+    StructField("product_id", StringType(), True),
+    StructField("product_name", StringType(), True),
+    StructField("quantity", IntegerType(), True),
+    StructField("price_per_unit", IntegerType(), True),
+    StructField("total_cost", IntegerType(), True),
+    StructField("purchase_timestamp", TimestampType(), True),
+    StructField("mobile_number", StringType(), True),
+    StructField("payment_method", StringType(), True),
+    StructField("email", StringType(), True),
+    StructField("liked_products", StringType(), True)
+])
+
+df = spark.read.format("csv") \
+    .schema(schema) \
+    .option("header", "true") \
+    .load("/Volumes/delta_practice_catalog/actual_files/tests/users.csv")
+
+# Add partition columns
+df = df.withColumn("year", year("purchase_timestamp")) \
+       .withColumn("month", month("purchase_timestamp"))
+
+# ---------------------------------------
+# 2️⃣ Initial Write (Partitioned Delta)
+# ---------------------------------------
+df.write.format("delta") \
+    .mode("overwrite") \
+    .partitionBy("year", "month") \
+    .save(path)
+
+print("Initial Table Created")
+spark.read.format("delta").load(path).show()
+
+df_append = df.filter(col("sale_id") == 13)
+
+df_append.write.format("delta") \
+    .mode("append") \
+    .save(path)
+
+print("After APPEND")
+spark.read.format("delta").load(path).show()
+
+df_overwrite = df.filter(col("sale_id") <= 3)
+
+df_overwrite.write.format("delta") \
+    .mode("overwrite") \
+    .save(path)
+
+print("After FULL OVERWRITE")
+spark.read.format("delta").load(path).show()
+
+df.write.format("delta") \
+    .mode("overwrite") \
+    .partitionBy("year", "month") \
+    .save(path)
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+
+df_partition = df.filter(col("sale_id") <= 5)
+
+df_partition.write.format("delta") \
+    .mode("overwrite") \
+    .partitionBy("year", "month") \
+    .save(path)
+
+print("After Dynamic Partition Overwrite")
+spark.read.format("delta").load(path).show()
+
+df_replace = df.filter(
+    (col("year") == 2026) & (col("month") == 2)
+)
+
+df_replace.write.format("delta") \
+    .mode("overwrite") \
+    .option("replaceWhere", "year = 2026 AND month = 2") \
+    .save(path)
+
+print("After replaceWhere (Feb only)")
+spark.read.format("delta").load(path).show()
