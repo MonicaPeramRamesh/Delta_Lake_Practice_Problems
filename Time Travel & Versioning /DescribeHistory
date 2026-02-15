@@ -1,0 +1,4 @@
+Use DESCRIBE HISTORY to audit all operations on table
+
+%sql
+describe history delta_practice_catalog.test_schema.sales 
