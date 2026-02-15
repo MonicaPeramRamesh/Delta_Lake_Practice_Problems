@@ -1,0 +1,9 @@
+Query Delta table VERSION AS OF 1 (specific version)
+
+%sql
+select * from delta_practice_catalog.test_schema.sales@v0 
+
+(or)
+
+%sql
+select * from delta_practice_catalog.test_schema.sales version as of 0
