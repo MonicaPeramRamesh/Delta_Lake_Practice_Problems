@@ -1,0 +1,4 @@
+Query Delta table TIMESTAMP AS OF '2026-02-14' (specific timestamp)
+
+%sql
+select * from delta_practice_catalog.test_schema.sales timestamp as of '2026-02-14 12:14:02'
