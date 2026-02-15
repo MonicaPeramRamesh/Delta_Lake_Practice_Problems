@@ -1,0 +1,4 @@
+RESTORE table to previous version after bad data load
+
+%sql
+Restore delta_practice_catalog.test_schema.sales version as of 1
