@@ -1,0 +1,4 @@
+Retrieve accidentally deleted data before VACUUM
+
+%sql
+vacuum  delta_practice_catalog.test_schema.sales retain 1 hours dry run
