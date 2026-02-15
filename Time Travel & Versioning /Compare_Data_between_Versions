@@ -1,0 +1,31 @@
+Compare data between current and previous version to find changes
+
+# Get latest version
+max_version_df = spark.sql("""
+SELECT MAX(version) AS max_version
+FROM (DESCRIBE HISTORY delta_practice_catalog.test_schema.sales)
+""")
+
+latest_version = max_version_df.first()[0]
+
+# Previous version
+previous_version = latest_version - 1
+
+# Read both versions
+current_df = spark.read.format("delta") \
+    .table("delta_practice_catalog.test_schema.sales")
+
+previous_df = spark.read.format("delta") \
+    .option("versionAsOf", previous_version) \
+    .table("delta_practice_catalog.test_schema.sales")
+
+# Find rows added or changed
+added_or_updated = current_df.exceptAll(previous_df)
+
+# Find rows deleted
+deleted = previous_df.exceptAll(current_df)
+
+# Combine all differences
+final_diff = added_or_updated.unionByName(deleted)
+
+display(final_diff)
